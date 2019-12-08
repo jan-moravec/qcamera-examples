@@ -32,6 +32,10 @@ int main()
         for (const QCamera::FrameRateRange &rate : framerates) {
             qDebug() << "\t\t-" << rate.minimumFrameRate << "to" << rate.maximumFrameRate;
         }
+
+        //QCameraViewfinderSettings settings;
+        //settings.setResolution(1920, 1080);
+        //camera.setViewfinderSettings(settings);
     }
 
     return 0;
