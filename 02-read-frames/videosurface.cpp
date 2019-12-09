@@ -25,7 +25,7 @@ QList<QVideoFrame::PixelFormat> VideoSurface::supportedPixelFormats(QAbstractVid
 
 bool VideoSurface::present(const QVideoFrame &frame)
 {
-    qDebug() << QDateTime::currentDateTime().toString() << frame.width() << frame.height() << frame.pixelFormat();
+    qDebug() << QDateTime::currentDateTime().toString() << counter++ << frame.width() << frame.height() << frame.pixelFormat();
 
     if (frame.mapMode() == QAbstractVideoBuffer::MapMode::ReadOnly || frame.mapMode() == QAbstractVideoBuffer::MapMode::ReadWrite) {
         process(frame);

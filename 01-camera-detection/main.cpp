@@ -1,6 +1,8 @@
+#include <thread>
 #include <QDebug>
 #include <QCamera>
 #include <QCameraInfo>
+#include <QCameraImageCapture>
 
 int main()
 {
@@ -14,9 +16,15 @@ int main()
         qDebug() << "\t- Position:" << info.position();
 
         QCamera camera(info);
-        QList<QSize> resolutions = camera.supportedViewfinderResolutions();
-        QList<QVideoFrame::PixelFormat> pixelformats = camera.supportedViewfinderPixelFormats();
-        QList<QCamera::FrameRateRange> framerates = camera.supportedViewfinderFrameRateRanges();
+        QCameraImageCapture capture(&camera);
+
+        camera.load();
+
+        qDebug() << "\t- Camera status ans state:" << camera.status() << camera.state();
+
+        QList<QSize> resolutions = capture.supportedResolutions();
+        QList<QVideoFrame::PixelFormat> bufferformats = capture.supportedBufferFormats();
+        QStringList imagecodecs = capture.supportedImageCodecs();
 
         qDebug() << "\t- Resolutions:";
         for (const QSize &resolution : resolutions) {
@@ -24,18 +32,20 @@ int main()
         }
 
         qDebug() << "\t- Pixel Formats:";
-        for (const QVideoFrame::PixelFormat &format : pixelformats) {
+        for (const QVideoFrame::PixelFormat &format : bufferformats) {
             qDebug() << "\t\t-" << format;
         }
 
-        qDebug() << "\t- Frame Rates:";
-        for (const QCamera::FrameRateRange &rate : framerates) {
-            qDebug() << "\t\t-" << rate.minimumFrameRate << "to" << rate.maximumFrameRate;
+        qDebug() << "\t- Image Codecs:";
+        for (const QString &codec : imagecodecs) {
+            qDebug() << "\t\t-" << codec << capture.imageCodecDescription(codec);
         }
 
-        //QCameraViewfinderSettings settings;
-        //settings.setResolution(1920, 1080);
-        //camera.setViewfinderSettings(settings);
+        /*QImageEncoderSettings settings = capture.encodingSettings();
+        settings.setCodec(imagecodecs[0]);
+        settings.setQuality(QMultimedia::EncodingQuality::VeryHighQuality);
+        settings.setResolution(resolutions[0]);
+        capture.setEncodingSettings(settings);*/
     }
 
     return 0;

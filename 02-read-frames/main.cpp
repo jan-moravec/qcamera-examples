@@ -1,11 +1,14 @@
-#include <thread>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QCamera>
 #include <QCameraInfo>
+#include <QTimer>
 #include "videosurface.h"
 
-int main()
+int main(int argc, char *argv[])
 {
+    QCoreApplication a(argc, argv);
+
     if (!QCameraInfo::availableCameras().size()) {
         qDebug() << "No cameras connected.";
         return 0;
@@ -20,9 +23,10 @@ int main()
     VideoSurface surface;
     camera.setViewfinder(&surface);
 
+    //camera.load();
     camera.start();
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    camera.stop();
 
-    return 0;
+    QTimer::singleShot(5000, &a, QCoreApplication::quit);
+
+    return a.exec();
 }

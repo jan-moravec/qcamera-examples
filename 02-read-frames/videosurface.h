@@ -13,6 +13,7 @@ public:
     bool present(const QVideoFrame &frame) override;
 
 private:
+    unsigned counter = 0;
     void process(const QVideoFrame &frame);
 };
 
