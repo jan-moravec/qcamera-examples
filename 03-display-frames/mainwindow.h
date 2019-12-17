@@ -5,6 +5,7 @@
 #include <QCamera>
 #include <QCameraInfo>
 #include <QCameraImageCapture>
+#include <QActionGroup>
 #include <memory>
 
 #include "videosurface.h"
@@ -44,6 +45,10 @@ private:
     std::unique_ptr<QCamera> camera;
     std::unique_ptr<QCameraImageCapture> capture;
     std::unique_ptr<VideoSurface> surface;
+
+    std::unique_ptr<QActionGroup> ActionGroupCameras;
+    std::unique_ptr<QActionGroup> ActionGroupFormats;
+    std::unique_ptr<QActionGroup> ActionGroupResolutions;
 };
 
 #endif // MAINWINDOW_H

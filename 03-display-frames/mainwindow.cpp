@@ -27,12 +27,15 @@ void MainWindow::refreshCameras()
     disconnectCamera();
     cameras = QCameraInfo::availableCameras();
 
+    ActionGroupCameras = std::make_unique<QActionGroup>(this);
+    ui->menuCameras->clear();
+
     if (cameras.size()) {
-        ui->menuCameras->clear();
         ui->menuCameras->setEnabled(true);
 
         for (const QCameraInfo &info: cameras) {
             QAction *action = ui->menuCameras->addAction(info.description());
+            ActionGroupCameras->addAction(action);
             connect(action, &QAction::triggered, [=](){
                 setCamera(info);
             });
@@ -45,7 +48,6 @@ void MainWindow::refreshCameras()
         }
 
     } else {
-        ui->menuCameras->clear();
         ui->menuCameras->setDisabled(true);
     }
 
@@ -53,13 +55,16 @@ void MainWindow::refreshCameras()
 
 void MainWindow::refreshFormats()
 {
+    ActionGroupFormats = std::make_unique<QActionGroup>(this);
+    ui->menuFormats->clear();
+
     if (capture) {
         formats = capture->supportedImageCodecs();
-
-        ui->menuFormats->clear();
         ui->menuFormats->setEnabled(true);
+
         for (const QString &codec : formats) {
             QAction *action = ui->menuFormats->addAction(capture->imageCodecDescription(codec));
+            ActionGroupFormats->addAction(action);
             connect(action, &QAction::triggered, [=](){
                 setFormat(codec);
             });
@@ -71,20 +76,22 @@ void MainWindow::refreshFormats()
         }
 
     } else {
-        ui->menuFormats->clear();
         ui->menuFormats->setDisabled(true);
     }
 }
 
 void MainWindow::refreshResolutions()
 {
+    ActionGroupResolutions = std::make_unique<QActionGroup>(this);
+    ui->menuResolutions->clear();
+
     if (capture) {
         resolutions = capture->supportedResolutions();
-
-        ui->menuResolutions->clear();
         ui->menuResolutions->setEnabled(true);
+
         for (const QSize &resolution : resolutions) {
             QAction *action = ui->menuResolutions->addAction(QString::number(resolution.width()) + "x" + QString::number(resolution.height()));
+            ActionGroupResolutions->addAction(action);
             connect(action, &QAction::triggered, [=](){
                 setResolution(resolution);
             });
@@ -96,7 +103,6 @@ void MainWindow::refreshResolutions()
         }
 
     } else {
-        ui->menuResolutions->clear();
         ui->menuResolutions->setDisabled(true);
     }
 }
