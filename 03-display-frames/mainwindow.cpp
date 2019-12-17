@@ -106,13 +106,12 @@ void MainWindow::setCamera(QCameraInfo info)
     camera = std::make_unique<QCamera>(info);
     capture = std::make_unique<QCameraImageCapture>(camera.get());
 
+    camera->setViewfinder(surface.get());
     camera->load();
+    camera->start();
 
     refreshFormats();
     refreshResolutions();
-
-    camera->setViewfinder(surface.get());
-    camera->start();
 
     ui->actionDisconnect->setEnabled(true);
 }

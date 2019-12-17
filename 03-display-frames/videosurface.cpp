@@ -14,18 +14,19 @@ VideoSurface::~VideoSurface()
 
 QList<QVideoFrame::PixelFormat> VideoSurface::supportedPixelFormats(QAbstractVideoBuffer::HandleType) const
 {
-    QList<QVideoFrame::PixelFormat> formats;
-
-    for (int i = static_cast<int>(QVideoFrame::PixelFormat::Format_ARGB32); i < static_cast<int>(QVideoFrame::PixelFormat::Format_AdobeDng); ++i) {
-        formats << static_cast<QVideoFrame::PixelFormat>(i);
-    }
+    QList<QVideoFrame::PixelFormat> formats =
+        {
+            QVideoFrame::PixelFormat::Format_RGB24,
+            QVideoFrame::PixelFormat::Format_RGB565
+        };
 
     return formats;
 }
 
 bool VideoSurface::present(const QVideoFrame &frame)
 {
-    qDebug() << QDateTime::currentDateTime().toString() << counter++ << frame.width() << frame.height() << frame.pixelFormat();
+    counter++;
+    //qDebug() << QDateTime::currentDateTime().toString() << counter << frame.width() << frame.height() << frame.pixelFormat();
 
     if (frame.mapMode() == QAbstractVideoBuffer::MapMode::ReadOnly || frame.mapMode() == QAbstractVideoBuffer::MapMode::ReadWrite) {
         process(frame);
@@ -58,8 +59,6 @@ QPixmap VideoSurface::getPixmap()
 
 void VideoSurface::process(const QVideoFrame &frame)
 {
-    qDebug() << "Frame data:" << frame.mappedBytes() << static_cast<int>(frame.bits()[0]);
-
     QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(frame.pixelFormat());
 
     if (imageFormat != QImage::Format_Invalid) {
@@ -73,5 +72,7 @@ void VideoSurface::process(const QVideoFrame &frame)
 
     if (!image.isNull()) {
         emit newImageReady();
+    } else {
+        qDebug() << __FUNCTION__ << ": Conversion failed, null image.";
     }
 }
