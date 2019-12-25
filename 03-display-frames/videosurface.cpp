@@ -2,20 +2,19 @@
 #include <QDebug>
 #include <QDateTime>
 
-VideoSurface::VideoSurface()
+VideoSurface::VideoSurface(QObject *parent): QAbstractVideoSurface(parent)
 {
-
 }
 
 VideoSurface::~VideoSurface()
 {
-
 }
 
 QList<QVideoFrame::PixelFormat> VideoSurface::supportedPixelFormats(QAbstractVideoBuffer::HandleType) const
 {
     QList<QVideoFrame::PixelFormat> formats =
         {
+            QVideoFrame::PixelFormat::Format_RGB32,
             QVideoFrame::PixelFormat::Format_RGB24,
             QVideoFrame::PixelFormat::Format_RGB565
         };
@@ -54,6 +53,7 @@ QImage VideoSurface::getImage()
 QPixmap VideoSurface::getPixmap()
 {
     std::lock_guard<std::mutex> lock(mutex);
+    //image = image.mirrored(false, true);
     return QPixmap::fromImage(image);
 }
 

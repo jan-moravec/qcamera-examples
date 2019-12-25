@@ -2,11 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPointer>
 #include <QCamera>
 #include <QCameraInfo>
 #include <QCameraImageCapture>
 #include <QActionGroup>
-#include <memory>
 
 #include "videosurface.h"
 
@@ -42,13 +42,13 @@ private:
     QStringList formats;
     QList<QSize> resolutions;
 
-    std::unique_ptr<QCamera> camera;
-    std::unique_ptr<QCameraImageCapture> capture;
-    std::unique_ptr<VideoSurface> surface;
+    QPointer<QCamera> camera;
+    QPointer<QCameraImageCapture> capture;
+    QPointer<VideoSurface> surface;
 
-    std::unique_ptr<QActionGroup> ActionGroupCameras;
-    std::unique_ptr<QActionGroup> ActionGroupFormats;
-    std::unique_ptr<QActionGroup> ActionGroupResolutions;
+    QPointer<QActionGroup> ActionGroupCameras;
+    QPointer<QActionGroup> ActionGroupFormats;
+    QPointer<QActionGroup> ActionGroupResolutions;
 };
 
 #endif // MAINWINDOW_H

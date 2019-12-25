@@ -10,7 +10,7 @@ class VideoSurface : public QAbstractVideoSurface
 {
     Q_OBJECT
 public:
-    VideoSurface();
+    VideoSurface(QObject *parent = nullptr);
     ~VideoSurface() override;
 
     QList<QVideoFrame::PixelFormat> supportedPixelFormats(QAbstractVideoBuffer::HandleType type) const override;

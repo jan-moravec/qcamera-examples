@@ -7,8 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    surface = std::make_unique<VideoSurface>();
-    connect(surface.get(), &VideoSurface::newImageReady, this, &MainWindow::updateImage);
+    surface = new VideoSurface(this);
+    connect(surface, &VideoSurface::newImageReady, this, &MainWindow::updateImage);
 
     connect(ui->actionRefresh, &QAction::triggered, this, &MainWindow::refreshCameras);
     connect(ui->actionExit, &QAction::triggered, this, &MainWindow::close);
@@ -25,17 +25,20 @@ MainWindow::~MainWindow()
 void MainWindow::refreshCameras()
 {
     disconnectCamera();
+
     cameras = QCameraInfo::availableCameras();
 
-    ActionGroupCameras = std::make_unique<QActionGroup>(this);
+    delete ActionGroupCameras;
+    ActionGroupCameras = new QActionGroup(this);
     ui->menuCameras->clear();
 
     if (cameras.size()) {
         ui->menuCameras->setEnabled(true);
 
         for (const QCameraInfo &info: cameras) {
-            QAction *action = ui->menuCameras->addAction(info.description());
-            ActionGroupCameras->addAction(action);
+            QAction *action = new QAction(info.description(), ActionGroupCameras); // capture->imageCodecDescription(codec)
+            action->setCheckable(true);
+            ui->menuCameras->addAction(action);
             connect(action, &QAction::triggered, [=](){
                 setCamera(info);
             });
@@ -55,7 +58,8 @@ void MainWindow::refreshCameras()
 
 void MainWindow::refreshFormats()
 {
-    ActionGroupFormats = std::make_unique<QActionGroup>(this);
+    delete ActionGroupFormats;
+    ActionGroupFormats = new QActionGroup(this);
     ui->menuFormats->clear();
 
     if (capture) {
@@ -63,8 +67,9 @@ void MainWindow::refreshFormats()
         ui->menuFormats->setEnabled(true);
 
         for (const QString &codec : formats) {
-            QAction *action = ui->menuFormats->addAction(capture->imageCodecDescription(codec));
-            ActionGroupFormats->addAction(action);
+            QAction *action = new QAction(codec, ActionGroupFormats); // capture->imageCodecDescription(codec)
+            action->setCheckable(true);
+            ui->menuFormats->addAction(action);
             connect(action, &QAction::triggered, [=](){
                 setFormat(codec);
             });
@@ -82,7 +87,8 @@ void MainWindow::refreshFormats()
 
 void MainWindow::refreshResolutions()
 {
-    ActionGroupResolutions = std::make_unique<QActionGroup>(this);
+    delete ActionGroupResolutions;
+    ActionGroupResolutions = new QActionGroup(this);
     ui->menuResolutions->clear();
 
     if (capture) {
@@ -90,8 +96,9 @@ void MainWindow::refreshResolutions()
         ui->menuResolutions->setEnabled(true);
 
         for (const QSize &resolution : resolutions) {
-            QAction *action = ui->menuResolutions->addAction(QString::number(resolution.width()) + "x" + QString::number(resolution.height()));
-            ActionGroupResolutions->addAction(action);
+            QAction *action = new QAction(QString::number(resolution.width()) + "x" + QString::number(resolution.height()), ActionGroupResolutions); // capture->imageCodecDescription(codec)
+            action->setCheckable(true);
+            ui->menuResolutions->addAction(action);
             connect(action, &QAction::triggered, [=](){
                 setResolution(resolution);
             });
@@ -109,10 +116,12 @@ void MainWindow::refreshResolutions()
 
 void MainWindow::setCamera(QCameraInfo info)
 {
-    camera = std::make_unique<QCamera>(info);
-    capture = std::make_unique<QCameraImageCapture>(camera.get());
+    delete camera;
+    delete capture;
+    camera = new QCamera(info, this);
+    capture = new QCameraImageCapture(camera, this);
 
-    camera->setViewfinder(surface.get());
+    camera->setViewfinder(surface);
     camera->load();
     camera->start();
 
@@ -143,9 +152,12 @@ void MainWindow::setResolution(QSize resolution)
 
 void MainWindow::disconnectCamera()
 {
-    camera.reset();
-    capture.reset();
+    delete camera;
+    delete capture;
 
+    for (QAction *action : ui->menuCameras->actions()) {
+        action->setChecked(false);
+    }
     refreshFormats();
     refreshResolutions();
     ui->actionDisconnect->setEnabled(false);
